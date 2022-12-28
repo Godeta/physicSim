@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Simulation</title>
+</head>
+<body>
+    <div style="display:none;">
+		<img id="canon" src="images/canon.png">
+	</div>
+    <canvas id="canvas" style="border:2px solid">
+    <script type="text/javascript">
+        //canvas setup
+        var canvas = document.getElementById("canvas");
+        var c = canvas.getContext("2d");
+        var canon = //get canon picture
+	    canon = document.getElementById("canon");
+        canvas.width = window.innerWidth -20;
+        canvas.height = window.innerHeight - 100;
+        mousePos = {
+            x:0,
+            y:0
+        }
+        function updateMouse(e) {
+            mousePos.x = e.pageX,
+            mousePos.y = e.pageY
+        }
+        canvas.onmousemove = updateMouse;
+        
+        var simMinWidth = 20.0;
+        var cScale = Math.min(canvas.width, canvas.height)/simMinWidth;
+        var simWidth = canvas.width/cScale;
+        var simHeight = canvas.height / cScale;
+
+        function cX(pos) {
+            return pos.x*cScale;
+        }
+
+        function cY(pos) {
+            return canvas.height - pos.y*cScale;
+        }
+        //scene
+        var ball = {
+            radius : 0.2,
+            pos : {x :5, y : 0.5},
+            vel : {x :10.0, y :15.0},
+            bounced : 0,
+            color : "FFFFFF"
+        };
+
+        //reset ball
+        canvas.addEventListener('click', event => {
+            ball.pos.x = 5;
+            ball.pos.y = 0.5;
+            ball.vel.x =10.0;
+            ball.vel.y =15.0;
+            ball.bounced = 0;
+	});
+
+        var gravity = { x : 0.0, y: -10.0};
+        var timeStep = 1.0/60.0;
+
+        //drawing
+        function draw() {
+            c.clearRect(0,0,canvas.width, canvas.height);
+            c.fillStyle = ball.color;
+            c.beginPath();
+            c.arc 
+            (
+                cX(ball.pos), cY(ball.pos),cScale*ball.radius, 0.0, 2.0*Math.PI
+            );
+            c.closePath();
+            c.fill();
+        }
+
+        //simulation
+        function simulate() {
+            if(ball.bounced <2){
+            ball.vel.x += gravity.x*timeStep;
+            ball.vel.y += gravity.y*timeStep;
+            ball.pos.x += ball.vel.x *timeStep;
+            ball.pos.y += ball.vel.y *timeStep;
+                if(ball.pos.x <0) {
+                    ball.pos.x = 0.2;
+                    ball.vel.x = -ball.vel.x;
+                    ball.bounced ++;
+                }
+                if(ball.pos.y <0) {
+                    ball.pos.y = 0.2;
+                    ball.vel.y = -ball.vel.y*0.01;
+                    ball.bounced ++;
+                }
+                if(ball.pos.x >simWidth) {
+                    ball.pos.x = simWidth-0.2;
+                    ball.vel.x = -ball.vel.x;
+                    ball.bounced ++;
+                }
+            }
+            else {
+                ball.color="FF0000";
+            }
+        }
+        function drawImageRotate(ctx, image, x, y, w, h, degrees) {
+	        ctx.save();
+            ctx.translate(x + w / 2, y + h / 2);
+            ctx.rotate(degrees * Math.PI / 180.0);
+            ctx.translate(-x - w / 2, -y - h / 2);
+            ctx.drawImage(image, x, y, w, h);
+            ctx.restore();
+}
+
+        // make browser call repeatidly
+        function update() {
+            simulate();
+            draw();
+            drawImageRotate(c, canon, 100, canvas.height -70, 70, 70, mousePos.y/10 % 90-20);
+            requestAnimationFrame(update);
+        }
+        update();
+    </script>
+    </canvas>
+</body>
+</html>
